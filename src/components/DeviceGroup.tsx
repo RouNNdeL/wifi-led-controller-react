@@ -7,7 +7,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../store";
 import {updateDevice} from "../store/devices/actions";
 import {send} from "@giantmachines/redux-websocket/dist";
-import {Device} from "../store/devices/types";
+import {Device, REQUEST_PAYLOAD_SAVE_DEVICE} from "../store/devices/types";
+import {BinarySerializer} from "../utils/BinarySerializer";
 
 interface DeviceGroupProps {
   spacing?: GridSpacing;
@@ -16,14 +17,6 @@ interface DeviceGroupProps {
   md?: number;
   lg?: number;
   xl?: number;
-}
-
-function serializeDevice(device: Device): Uint8Array {
-  const colorInt = Number("0x" + device.color.substring(1));
-  return new Uint8Array([
-    device.index, device.brightness * 2.55, device.state ? 1 : 0,
-    colorInt >> 16, colorInt >> 8, colorInt
-  ]);
 }
 
 const DeviceGroup: React.FunctionComponent<DeviceGroupProps> = (props) => {
@@ -50,13 +43,10 @@ const DeviceGroup: React.FunctionComponent<DeviceGroupProps> = (props) => {
     };
 
     const saveDevice = (device: Device) => {
-      const data = serializeDevice(device);
-      const payload = new Uint8Array(10);
-      payload[0] = 0xB0; // Begin transaction
-      payload[1] = 0x01; // Simple change command
-      payload[2] = 0x06; // Payload length
-      payload.set(data, 3); // Payload
-      payload[9] = 0xB1; // Commit transaction
+      const payload = BinarySerializer.getBinaryPayload({
+        type: REQUEST_PAYLOAD_SAVE_DEVICE,
+        device
+      });
 
       dispatch(send(payload.buffer));
     };
