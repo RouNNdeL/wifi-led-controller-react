@@ -1,5 +1,13 @@
-import {DevicesActionType, DevicesState, SET_DEVICES, UPDATE_DEVICE, WS_MESSAGE, WS_OPEN, WsActionType} from "./types";
-import {BinarySerializer} from "../../utils/BinarySerializer";
+import {
+  DevicesActionType,
+  DevicesState,
+  INCREMENT_PACKET_ID,
+  SET_DEVICES,
+  UPDATE_DEVICE,
+  WS_MESSAGE,
+  WS_OPEN,
+  WsActionType
+} from "./types";
 
 const initialState: DevicesState = {
   devices: [{
@@ -8,19 +16,21 @@ const initialState: DevicesState = {
     state: false,
     brightness: 0x20,
     color: "#ff00ff"
-  },{
+  }, {
     name: "Part1",
     index: 1,
     state: false,
     brightness: 0x20,
     color: "#ff00ff"
-  },{
+  }, {
     name: "Part2",
     index: 2,
     state: false,
     brightness: 0x20,
     color: "#ff00ff"
   }],
+  clientId: null,
+  packetId: 0,
   requestQueue: [],
   responseQueue: []
 };
@@ -30,10 +40,15 @@ export function devicesReducer(state = initialState, action: WsActionType | Devi
     case WS_OPEN:
       return state;
     case WS_MESSAGE:
-      const blob : Blob = action.payload.message;
-      blob.arrayBuffer().then((value => console.log(BinarySerializer.getPayloadFromBinary(value))));
-      // TODO: Add async dispatch middleware to then dispatch
-      //  to handle resolved array buffer and add to response queue
+      const array: Uint8Array = new Uint8Array(action.payload.message);
+      if (state.clientId == null) {
+        if (array.length != 1) {
+          throw new Error("First message expected clientId");
+        }
+        return {...state, clientId: array[0]}
+      }
+
+      // TODO: Parse responses
       return state;
     case UPDATE_DEVICE:
       return {
@@ -43,6 +58,8 @@ export function devicesReducer(state = initialState, action: WsActionType | Devi
       return {
         ...state, devices: action.devices
       };
+    case INCREMENT_PACKET_ID:
+      return {...state, packetId: state.packetId + 1};
     default:
       return state;
   }

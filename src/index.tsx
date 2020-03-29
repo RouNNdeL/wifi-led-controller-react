@@ -9,7 +9,9 @@ import reduxWebsocket from '@giantmachines/redux-websocket';
 
 const initialState = {};
 
-const reduxWebsocketMiddleware = reduxWebsocket();
+const reduxWebsocketMiddleware = reduxWebsocket({
+  onOpen: socket => socket.binaryType = "arraybuffer"
+});
 
 const middleware: Middleware[] = [reduxWebsocketMiddleware];
 const store = createStore(

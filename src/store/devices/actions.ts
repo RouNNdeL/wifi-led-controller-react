@@ -1,4 +1,4 @@
-import {Device, DevicesActionType, SET_DEVICES, UPDATE_DEVICE} from "./types";
+import {Device, DevicesActionType, INCREMENT_PACKET_ID, SET_DEVICES, UPDATE_DEVICE} from "./types";
 
 
 export function updateDevice(device: Device): DevicesActionType {
@@ -6,6 +6,10 @@ export function updateDevice(device: Device): DevicesActionType {
     type: UPDATE_DEVICE,
     device: device
   }
+}
+
+export function incrementPacketId() {
+  return {type: INCREMENT_PACKET_ID};
 }
 
 export function setDevices(devices: Device[]): DevicesActionType {

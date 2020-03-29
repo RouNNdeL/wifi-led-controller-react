@@ -12,7 +12,7 @@ export const WS_SEND = `REDUX_WEBSOCKET::SEND`;
 
 export const UPDATE_DEVICE = "UPDATE_DEVICE";
 export const SET_DEVICES = "SET_DEVICES";
-export const ARRAY_BUFFER_RESPONSE = "ARRAY_BUFFER_RESPONSE";
+export const INCREMENT_PACKET_ID = "INCREMENT_PACKET_ID";
 
 export const REQUEST_PAYLOAD_SAVE_DEVICE = "REQUEST_PAYLOAD_SAVE_DEVICE";
 export const REQUEST_PAYLOAD_GET_DEVICE = "REQUEST_PAYLOAD_GET_DEVICE";
@@ -51,6 +51,8 @@ export type ResponsePayload = PayloadSaveDeviceResponse | PayloadErrorResponse;
 
 export interface DevicesState {
   devices: Device[];
+  clientId: number | null;
+  packetId: number;
   requestQueue: RequestPayload[];
   responseQueue: ResponsePayload[];
 }
@@ -85,11 +87,11 @@ export interface WsMessage {
   payload: any;
 }
 
-export interface ResponseArrayBuffer {
-  type: typeof ARRAY_BUFFER_RESPONSE;
-  payload: ArrayBuffer
+export interface IncrementPacketId {
+  type: typeof INCREMENT_PACKET_ID,
 }
 
-export type DevicesActionType = UpdateDevice | SetDevices | ResponseArrayBuffer
+
+export type DevicesActionType = UpdateDevice | SetDevices | IncrementPacketId
 
 export type WsActionType = WsConnect | WsOpen | WsError | WsMessage

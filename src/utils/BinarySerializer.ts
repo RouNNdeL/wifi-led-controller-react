@@ -19,10 +19,15 @@ export class BinarySerializer {
   public static readonly CMD_GET_DEVICE_RESPONSE = 0xA2;
   public static readonly CMD_GET_ALL_DEVICES_RESPONSE = 0xA3;
 
-  public static getBinaryPayload(payload: RequestPayload): Uint8Array {
+  public static getBinaryPayload(payload: RequestPayload, clientId: number | null, packetId: number): Uint8Array {
+    if(clientId == null) {
+      throw new Error("Client id not initialized when attempting to prepare payload");
+    }
+
     switch (payload.type) {
       case REQUEST_PAYLOAD_SAVE_DEVICE:
-        return this.getSaveDevicePayload(payload.device);
+        const data = this.serializeDevice(payload.device);
+        return this.preparePacket(data, clientId, packetId);
       default:
         throw Error("Invalid payload type");
     }
@@ -50,16 +55,17 @@ export class BinarySerializer {
     }
   }
 
-  private static getSaveDevicePayload(device: Device): Uint8Array {
-    const data = this.serializeDevice(device);
-    const payload = new Uint8Array(10);
-    payload[0] = this.BEGIN_TRANSACTION;
-    payload[1] = this.CMD_SAVE_DEVICE;
-    payload[2] = 0x06; // Payload length
-    payload.set(data, 3);
-    payload[9] = this.COMMIT_TRANSACTION;
+  private static preparePacket(payload: Uint8Array, clientId: number, packetId: number) {
+    const packet = new Uint8Array(payload.length + 7);
 
-    return payload;
+    packet[0] = this.BEGIN_TRANSACTION;
+    packet.set([clientId, packetId >> 8, packetId], 1);
+    packet[4] = this.CMD_SAVE_DEVICE;
+    packet[5] = payload.length;
+    packet.set(payload, 6);
+    packet[payload.length + 6] = this.COMMIT_TRANSACTION;
+
+    return packet;
   }
 
   private static serializeDevice(device: Device): Uint8Array {
