@@ -14,9 +14,11 @@
     "react-dom": "latest",
     "react-jss": "latest",
     "react-redux": "latest",
-    "redux": "latest"
+    "redux": "latest",
+    "react-color": "latest"
   },
   "devDependencies": {
+    "@types/react-color": "^3.0.1",
     "@types/react-dom": "^16.9.5",
     "@types/react-redux": "^7.1.7",
     "clean-webpack-plugin": "^3.0.0",

@@ -22,6 +22,7 @@ import {
 } from "@material-ui/core";
 import {Brightness4, Brightness7} from "@material-ui/icons";
 import {connect, send} from "@giantmachines/redux-websocket/dist";
+import DeviceGroup from "./components/DeviceGroup";
 
 const style = {
   '@global': {
@@ -85,13 +86,6 @@ const App: React.FunctionComponent = () => {
     dispatch(connect("ws://192.168.1.181:81"));
   }, []);
 
-  useEffect(() => {
-    if(devices.devices.length > 0) {
-      const data = new Uint8Array([0xb0, 0x07, 0x00, 0x00, 0x20, 0x01, 0xff, 0x00, 0xff, 0xb1]);
-      dispatch(send(data.buffer));
-    }
-  }, [devices.devices]);
-
   const classes = useStyles();
 
   return (
@@ -108,7 +102,7 @@ const App: React.FunctionComponent = () => {
               <MenuIcon/>
             </IconButton>
             <Typography className={classes.title} variant="h6" noWrap>
-              My Notes
+              Bed Lights
             </Typography>
             <Tooltip title={themeType === "light" ? "Dark theme" : "Light theme"}>
               <IconButton onClick={changeTheme}>
@@ -117,6 +111,7 @@ const App: React.FunctionComponent = () => {
             </Tooltip>
           </Toolbar>
         </AppBar>
+        <DeviceGroup/>
       </Paper>
     </ThemeProvider>
   );
