@@ -126,13 +126,14 @@ const DeviceCard: React.FunctionComponent<DeviceCardProps> = (props) => {
           <ChromePicker styles={pickerStyles} color={color} disableAlpha={true}
                         onChange={(v) => setColor(v.hex)}/>
         </Box>
+        {/* TODO: Add synchronization
         <FormControlLabel
           control={
             <Checkbox onChange={(_, v) =>
               props.onSynchronizeChange(device.index, v)}/>}
           label="Synchronize"
           labelPlacement="end"
-        />
+        />*/}
       </CardContent>
     </Card>
   );

@@ -1,38 +1,23 @@
 import {
+  ADD_REQUEST, Device,
   DevicesActionType,
   DevicesState,
-  INCREMENT_PACKET_ID,
+  RESPONSE_PAYLOAD_GET_ALL_DEVICES,
   SET_DEVICES,
   UPDATE_DEVICE,
   WS_MESSAGE,
   WS_OPEN,
   WsActionType
 } from "./types";
+import {BinarySerializer} from "../../utils/BinarySerializer";
 
 const initialState: DevicesState = {
-  devices: [{
-    name: "Onboard LED",
-    index: 0,
-    state: false,
-    brightness: 0x20,
-    color: "#ff00ff"
-  }, {
-    name: "Part1",
-    index: 1,
-    state: false,
-    brightness: 0x20,
-    color: "#ff00ff"
-  }, {
-    name: "Part2",
-    index: 2,
-    state: false,
-    brightness: 0x20,
-    color: "#ff00ff"
-  }],
+  devices: [],
+  deviceDefinitions: [{name: "Top", index: 2}, {name: "Bottom", index: 1}],
   clientId: null,
   packetId: 0,
-  requestQueue: [],
-  responseQueue: []
+  lastRequest: null,
+  packetTimeout: null,
 };
 
 export function devicesReducer(state = initialState, action: WsActionType | DevicesActionType) {
@@ -45,10 +30,27 @@ export function devicesReducer(state = initialState, action: WsActionType | Devi
         if (array.length != 1) {
           throw new Error("First message expected clientId");
         }
+
         return {...state, clientId: array[0]}
       }
 
-      // TODO: Parse responses
+      const response = BinarySerializer.getPayloadFromBinary(array.buffer, state.clientId);
+      if (response == null) {
+        return state;
+      }
+
+      switch (response.type) {
+        case RESPONSE_PAYLOAD_GET_ALL_DEVICES:
+          const devices: Device[] = state.deviceDefinitions.map(v => {
+            const device: Device = response.devices.filter(d => d.index === v.index)[0];
+            return {...device, name: v.name}
+          });
+
+          return {
+            ...state, devices
+          }
+      }
+
       return state;
     case UPDATE_DEVICE:
       return {
@@ -58,8 +60,8 @@ export function devicesReducer(state = initialState, action: WsActionType | Devi
       return {
         ...state, devices: action.devices
       };
-    case INCREMENT_PACKET_ID:
-      return {...state, packetId: state.packetId + 1};
+    case ADD_REQUEST:
+      return {...state, packetId: state.packetId + 1, lastRequest: action.request};
     default:
       return state;
   }

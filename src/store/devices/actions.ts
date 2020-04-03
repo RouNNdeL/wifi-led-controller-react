@@ -1,4 +1,4 @@
-import {Device, DevicesActionType, INCREMENT_PACKET_ID, SET_DEVICES, UPDATE_DEVICE} from "./types";
+import {ADD_REQUEST, Device, DevicesActionType, RequestPayload, SET_DEVICES, UPDATE_DEVICE} from "./types";
 
 
 export function updateDevice(device: Device): DevicesActionType {
@@ -8,8 +8,11 @@ export function updateDevice(device: Device): DevicesActionType {
   }
 }
 
-export function incrementPacketId() {
-  return {type: INCREMENT_PACKET_ID};
+export function addRequest(request: RequestPayload) {
+  return {
+    type: ADD_REQUEST,
+    request: request
+  }
 }
 
 export function setDevices(devices: Device[]): DevicesActionType {

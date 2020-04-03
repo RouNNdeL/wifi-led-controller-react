@@ -7,7 +7,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "./store";
 import {getPreferences, setTheme} from "./store/preferences/actions";
 import {
-  AppBar,
+  AppBar, Box,
   createMuiTheme,
   createStyles,
   IconButton,
@@ -21,7 +21,7 @@ import {
   useMediaQuery
 } from "@material-ui/core";
 import {Brightness4, Brightness7} from "@material-ui/icons";
-import {connect, send} from "@giantmachines/redux-websocket/dist";
+import {connect} from "@giantmachines/redux-websocket/dist";
 import DeviceGroup from "./components/DeviceGroup";
 
 const style = {
@@ -30,7 +30,8 @@ const style = {
       margin: 0
     },
     "html, body, #app": {
-      height: "100%"
+      height: "100%",
+      overflow: "auto"
     }
   }
 };
@@ -39,7 +40,8 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
-      height: "100%"
+      height: "100%",
+      overflow: "auto"
     },
     appBar: {
       "& .MuiSvgIcon-root": {
@@ -111,7 +113,11 @@ const App: React.FunctionComponent = () => {
             </Tooltip>
           </Toolbar>
         </AppBar>
-        <DeviceGroup/>
+        <Box m={1}>
+        {
+          devices.clientId !== null ? <DeviceGroup spacing={2} xs={12} sm={6} md={4} lg={3} xl={3}/> : null
+        }
+        </Box>
       </Paper>
     </ThemeProvider>
   );

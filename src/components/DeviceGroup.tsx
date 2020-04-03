@@ -5,9 +5,14 @@ import {GridSpacing} from "@material-ui/core/Grid/Grid";
 import DeviceCard, {ChangeHandler, SynchronizeChangeHandler} from "./DeviceCard";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../store";
-import {incrementPacketId, updateDevice} from "../store/devices/actions";
+import {updateDevice} from "../store/devices/actions";
 import {send} from "@giantmachines/redux-websocket/dist";
-import {Device, INCREMENT_PACKET_ID, REQUEST_PAYLOAD_SAVE_DEVICE} from "../store/devices/types";
+import {
+  Device,
+  REQUEST_PAYLOAD_GET_ALL_DEVICES,
+  REQUEST_PAYLOAD_SAVE_DEVICE,
+  RequestPayload
+} from "../store/devices/types";
 import {BinarySerializer} from "../utils/BinarySerializer";
 
 interface DeviceGroupProps {
@@ -24,6 +29,17 @@ const DeviceGroup: React.FunctionComponent<DeviceGroupProps> = (props) => {
     const deviceState = useSelector((state: RootState) => state.devices);
     const devices = deviceState.devices;
     const dispatch = useDispatch();
+
+    if(devices.length === 0) {
+      const request : RequestPayload = {
+        type: REQUEST_PAYLOAD_GET_ALL_DEVICES,
+        packetId: deviceState.packetId
+      };
+      const payload = BinarySerializer.getBinaryPayload(request, deviceState.clientId);
+
+      dispatch(send(payload.buffer));
+      //dispatch(addRequest(request));
+    }
 
     const handleSynchronizeChange: SynchronizeChangeHandler = (index, value) => {
       if (value) {
@@ -50,10 +66,10 @@ const DeviceGroup: React.FunctionComponent<DeviceGroupProps> = (props) => {
 
       const payload = BinarySerializer.getBinaryPayload({
         type: REQUEST_PAYLOAD_SAVE_DEVICE,
+        packetId: deviceState.packetId,
         device
-      }, deviceState.clientId, deviceState.packetId);
+      }, deviceState.clientId);
 
-      dispatch(incrementPacketId());
       dispatch(send(payload.buffer));
     };
 
